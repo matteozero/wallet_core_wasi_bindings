@@ -19,7 +19,10 @@ dependencies:
   protobuf: ^6.0.0
   fixnum: ^1.1.1
   wasm_run:
-    path: ../wasm_run/packages/wasm_run
+    git:
+      url: https://github.com/matteozero/wasm_run.git
+      ref: feature/wasmtime-exceptions
+      path: packages/wasm_run
 
 dev_dependencies:
   flutter_test:
