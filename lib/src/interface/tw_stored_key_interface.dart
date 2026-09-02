@@ -1,0 +1,44 @@
+part of '../../wallet_core_wasi_bindings.dart';
+
+abstract class TWStoredKeyInterface {
+  int createLevel(int name, int password, int encryptionLevel);
+  int createLevelAndEncryption(int name, int password, int encryptionLevel, int encryption);
+  int create(int name, int password);
+  int createEncryption(int name, int password, int encryption);
+  void delete(int pointer);
+  int load(int path);
+  int importPrivateKey(int privateKey, int name, int password, int coin);
+  int importPrivateKeyWithEncryption(int privateKey, int name, int password, int coin, int encryption);
+  int importHDWallet(int mnemonic, int name, int password, int coin);
+  int importHDWalletWithEncryption(int mnemonic, int name, int password, int coin, int encryption);
+  int importJSON(int json);
+  int account(int key, int index);
+  int accountForCoin(int key, int coin, int wallet);
+  int accountForCoinDerivation(int key, int coin, int derivation, int wallet);
+  void addAccountDerivation(int key, int address, int coin, int derivation, int derivationPath, int publicKey, int extendedPublicKey);
+  void addAccount(int key, int address, int coin, int derivationPath, int publicKey, int extendedPublicKey);
+  void removeAccountForCoin(int key, int coin);
+  void removeAccountForCoinDerivation(int key, int coin, int derivation);
+  void removeAccountForCoinDerivationPath(int key, int coin, int derivationPath);
+  bool store(int key, int path);
+  int decryptPrivateKey(int key, int password);
+  int decryptMnemonic(int key, int password);
+  int privateKey(int key, int coin, int password);
+  int wallet(int key, int password);
+  int exportJSON(int key);
+  bool fixAddresses(int key, int password);
+  int importPrivateKeyWithEncryptionAndDerivation(int privateKey, int name, int password, int coin, int encryption, int derivation);
+  int importPrivateKeyEncoded(int privateKey, int name, int password, int coin);
+  int importPrivateKeyEncodedWithEncryption(int privateKey, int name, int password, int coin, int encryption);
+  int importPrivateKeyEncodedWithEncryptionAndDerivation(int privateKey, int name, int password, int coin, int encryption, int derivation);
+  bool storeWithTemporaryFile(int key, int path, int temporaryPath);
+  int decryptPrivateKeyEncoded(int key, int password);
+  bool updateAddress(int key, int coin);
+  bool fixEncryption(int key, int password);
+  int identifier(int pointer);
+  int name(int pointer);
+  bool isMnemonic(int pointer);
+  int accountCount(int pointer);
+  int encryptionParameters(int pointer);
+  bool hasPrivateKeyEncoded(int pointer, int key);
+}

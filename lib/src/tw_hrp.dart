@@ -1,0 +1,61 @@
+part of '../../wallet_core_wasi_bindings.dart';
+
+enum TWHRP {
+  unknown(0),
+  bitcoin(1),
+  litecoin(2),
+  viacoin(3),
+  groestlcoin(4),
+  digiByte(5),
+  monacoin(6),
+  cosmos(7),
+  bitcoinCash(8),
+  bitcoinGold(9),
+  ioTeX(10),
+  nervos(11),
+  zilliqa(12),
+  terra(13),
+  cryptoOrg(14),
+  kava(15),
+  oasis(16),
+  bluzelle(17),
+  bandChain(18),
+  multiversX(19),
+  secret(20),
+  agoric(21),
+  binance(22),
+  ecash(23),
+  thorchain(24),
+  harmony(25),
+  cardano(26),
+  qtum(27),
+  nativeInjective(28),
+  osmosis(29),
+  terraV2(30),
+  coreum(31),
+  nativeCanto(32),
+  sommelier(33),
+  fetchAI(34),
+  mars(35),
+  umee(36),
+  quasar(37),
+  persistence(38),
+  akash(39),
+  noble(40),
+  stargaze(41),
+  nativeEvmos(42),
+  juno(43),
+  stride(44),
+  axelar(45),
+  crescent(46),
+  kujira(47),
+  comdex(48),
+  neutron(49),
+  ;
+
+  const TWHRP(this.value);
+  final int value;
+
+  static TWHRP fromValue(int value) =>
+      TWHRP.values.firstWhere((e) => e.value == value);
+}

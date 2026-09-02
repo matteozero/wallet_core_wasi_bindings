@@ -1,0 +1,48 @@
+part of '../../wallet_core_wasi_bindings.dart';
+
+abstract class TWEthereumAbiFunctionInterface {
+  int createWithString(int name);
+  void delete(int pointer);
+  int getType(int fn);
+  int addParamUInt8(int fn, int val, bool isOutput);
+  int addParamUInt16(int fn, int val, bool isOutput);
+  int addParamUInt32(int fn, int val, bool isOutput);
+  int addParamUInt64(int fn, int val, bool isOutput);
+  int addParamUInt256(int fn, int val, bool isOutput);
+  int addParamUIntN(int fn, int bits, int val, bool isOutput);
+  int addParamInt8(int fn, int val, bool isOutput);
+  int addParamInt16(int fn, int val, bool isOutput);
+  int addParamInt32(int fn, int val, bool isOutput);
+  int addParamInt64(int fn, int val, bool isOutput);
+  int addParamInt256(int fn, int val, bool isOutput);
+  int addParamIntN(int fn, int bits, int val, bool isOutput);
+  int addParamBool(int fn, bool val, bool isOutput);
+  int addParamString(int fn, int val, bool isOutput);
+  int addParamAddress(int fn, int val, bool isOutput);
+  int addParamBytes(int fn, int val, bool isOutput);
+  int addParamBytesFix(int fn, int size, int val, bool isOutput);
+  int addParamArray(int fn, bool isOutput);
+  int getParamUInt8(int fn, int idx, bool isOutput);
+  int getParamUInt64(int fn, int idx, bool isOutput);
+  int getParamUInt256(int fn, int idx, bool isOutput);
+  bool getParamBool(int fn, int idx, bool isOutput);
+  int getParamString(int fn, int idx, bool isOutput);
+  int getParamAddress(int fn, int idx, bool isOutput);
+  int addInArrayParamUInt8(int fn, int arrayIdx, int val);
+  int addInArrayParamUInt16(int fn, int arrayIdx, int val);
+  int addInArrayParamUInt32(int fn, int arrayIdx, int val);
+  int addInArrayParamUInt64(int fn, int arrayIdx, int val);
+  int addInArrayParamUInt256(int fn, int arrayIdx, int val);
+  int addInArrayParamUIntN(int fn, int arrayIdx, int bits, int val);
+  int addInArrayParamInt8(int fn, int arrayIdx, int val);
+  int addInArrayParamInt16(int fn, int arrayIdx, int val);
+  int addInArrayParamInt32(int fn, int arrayIdx, int val);
+  int addInArrayParamInt64(int fn, int arrayIdx, int val);
+  int addInArrayParamInt256(int fn, int arrayIdx, int val);
+  int addInArrayParamIntN(int fn, int arrayIdx, int bits, int val);
+  int addInArrayParamBool(int fn, int arrayIdx, bool val);
+  int addInArrayParamString(int fn, int arrayIdx, int val);
+  int addInArrayParamAddress(int fn, int arrayIdx, int val);
+  int addInArrayParamBytes(int fn, int arrayIdx, int val);
+  int addInArrayParamBytesFix(int fn, int arrayIdx, int size, int val);
+}

@@ -1,0 +1,31 @@
+name: wallet_core_wasi_bindings
+description: >
+  Clean-room Dart bindings for TrustWalletCore's C API, generated directly
+  from wallet-core's own headers and codegen-v2 manifests (Apache-2.0), with
+  a built-in wasm_run/WASI backend that runs TrustWalletCore compiled as a
+  standalone WASI reactor module (wasi-sdk, wasm exceptions enabled) instead
+  of Emscripten.
+version: 0.1.0
+publish_to: "none"
+
+environment:
+  sdk: ">=3.6.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  meta: ^1.15.0
+  protobuf: ^6.0.0
+  fixnum: ^1.1.1
+  wasm_run:
+    path: ../wasm_run/packages/wasm_run
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^5.0.0
+
+flutter:
+  assets:
+    - assets/wasm/

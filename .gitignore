@@ -1,0 +1,35 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+__pycache__/
+*.swp
+.DS_Store
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# This is a package, not an app -- don't lock transitive dependency versions.
+# See https://dart.dev/guides/libraries/private-files#pubspeclock
+pubspec.lock
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
