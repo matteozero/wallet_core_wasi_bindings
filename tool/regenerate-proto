@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Regenerates lib/proto/*.{pb,pbenum,pbjson}.dart from wallet-core's own
+# src/proto/*.proto (Apache-2.0). Run this after pulling in a newer
+# wallet-core whose .proto files changed -- unlike tool/regenerate (the TW*
+# C ABI class/function layer), this has nothing to do with extract.py /
+# generate_dart.py; it's a plain `protoc --dart_out` pass, no custom codegen.
+#
+# Requires:
+#   - protoc            (brew install protobuf)
+#   - protoc-gen-dart    (dart pub global activate protoc_plugin), and
+#                        ~/.pub-cache/bin on PATH so protoc can find it
+
+set -e
+
+base_dir=$(cd `dirname $0`; pwd)
+pkg_dir=${base_dir}/..
+
+WALLET_CORE_DIR=${WALLET_CORE_DIR:-/Users/lightningx/Working/aiworking/walletcore/wallet-core}
+proto_dir="${WALLET_CORE_DIR}/src/proto"
+out_dir="${pkg_dir}/lib/proto"
+
+if [[ ! -d "${proto_dir}" ]]; then
+    echo "error: ${proto_dir} not found -- set WALLET_CORE_DIR to your wallet-core checkout" >&2
+    exit 1
+fi
+
+if ! command -v protoc > /dev/null 2>&1; then
+    echo "error: protoc not found -- brew install protobuf" >&2
+    exit 1
+fi
+
+export PATH="${HOME}/.pub-cache/bin:${PATH}"
+if ! command -v protoc-gen-dart > /dev/null 2>&1; then
+    echo "error: protoc-gen-dart not found -- dart pub global activate protoc_plugin" >&2
+    exit 1
+fi
+
+mkdir -p "${out_dir}"
+
+protoc \
+    --proto_path="${proto_dir}" \
+    --dart_out="${out_dir}" \
+    "${proto_dir}"/*.proto
+
+count=$(ls "${out_dir}"/*.pb.dart | wc -l | tr -d ' ')
+echo "Generated ${count} .pb.dart (+ .pbenum.dart/.pbjson.dart) files in ${out_dir}"

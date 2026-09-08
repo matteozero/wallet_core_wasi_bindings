@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Fully regenerates this package's `lib/` from wallet-core's own sources --
+# safe to run even if `lib/` doesn't exist at all (every step below creates
+# whatever directories it needs). Run this after pulling in a newer
+# wallet-core -- extract.py and generate_coin_types.py both hardcode the
+# path to the wallet-core checkout they read from, see WALLET_CORE at the
+# top of each file; tool/regenerate-proto takes it from $WALLET_CORE_DIR
+# (same default).
+#
+# Pipeline (see README.md "How it's generated"):
+#   1. extract.py             -> tool/extracted.json (unified API surface
+#      description of every TW* class's functions/properties/inits)
+#   2. generate_dart.py       -> first restores/syncs the hand-written
+#      TWString/TWData + wasm runtime files from tool/handwritten/ (see
+#      sync_hand_written_files() -- these have no source of truth in
+#      wallet-core to derive them from, so a synced backup is the only way
+#      lib/ being wiped doesn't lose them for good), then writes
+#      lib/src/*.dart + lib/src/wasm/*_impl.dart for every class in
+#      extracted.json, then stitches the resulting part-directive lists +
+#      impl registry map into lib/wallet_core_wasi_bindings.dart and
+#      lib/src/wasm/registry.dart from tool/templates/*.tmpl. So a class
+#      being added/removed -- or any of these files being deleted outright
+#      -- needs no manual follow-up. tool/generated_{api,wasm}_parts.txt and
+#      generated_registry_entries.txt are still written alongside, purely as
+#      a human-diffable record of what changed.
+#   3. generate_coin_types.py -> lib/src/tw_coin_type.dart, parsed directly
+#      from TWCoinType.h's C enum (a flat constant list, not a TW* class, so
+#      it's outside extract.py/generate_dart.py's pipeline).
+#   4. regenerate-proto       -> lib/proto/*.pb.dart, a separate pipeline
+#      again (protoc against wallet-core's src/proto/*.proto, not this
+#      manifest/header-based one).
+
+set -e
+
+base_dir=$(cd `dirname $0`; pwd)
+pkg_dir=${base_dir}/..
+
+cd "${pkg_dir}"
+
+python3 tool/extract.py
+python3 tool/generate_dart.py
+python3 tool/generate_coin_types.py
+tool/regenerate-proto

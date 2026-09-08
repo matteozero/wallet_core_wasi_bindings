@@ -1,0 +1,34 @@
+/// Clean-room Dart bindings for TrustWalletCore's C API (`TW*` functions),
+/// generated directly from wallet-core's own headers and codegen-v2
+/// manifests, plus the wasm_run/WASI backend that runs TrustWalletCore
+/// compiled as a standalone WASI reactor module (wasi-sdk, wasm exceptions
+/// enabled) instead of Emscripten.
+library;
+
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:meta/meta.dart';
+import 'package:wasm_run/wasm_run.dart';
+
+part 'src/runtime.dart';
+part 'src/interface/tw_string_interface.dart';
+part 'src/interface/tw_data_interface.dart';
+part 'src/tw_string.dart';
+part 'src/tw_data.dart';
+
+// GENERATED:api by tool/generate_dart.py -- do not hand-edit below this line.
+{{API_PARTS}}
+// END GENERATED:api
+
+// wasm_run/WASI backend implementation.
+part 'src/wasm/runtime.dart';
+part 'src/wasm/module.dart';
+part 'src/wasm/registry.dart';
+part 'src/wasm/tw_string_impl.dart';
+part 'src/wasm/tw_data_impl.dart';
+
+// GENERATED:wasm by tool/generate_dart.py -- do not hand-edit below this line.
+{{WASM_PARTS}}
+// END GENERATED:wasm

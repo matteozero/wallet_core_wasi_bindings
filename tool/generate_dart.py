@@ -18,8 +18,30 @@ from dart_types import high_level_type, low_level_type, normalize_variant
 ROOT = Path(__file__).parent.parent
 API_SRC = ROOT / "lib" / "src"
 WASM_SRC = ROOT / "lib" / "src" / "wasm"
+MAIN_LIB = ROOT / "lib" / "wallet_core_wasi_bindings.dart"
+REGISTRY = WASM_SRC / "registry.dart"
 
 HAND_WRITTEN = {"TWString", "TWData"}
+
+# These have no source of truth this pipeline can derive them from (see
+# marshal_in/marshal_out below for why TWString/TWData specifically can't
+# just run through the normal class-generation path) -- they're genuinely
+# hand-authored. tool/handwritten/ keeps a synced backup purely so deleting
+# lib/ entirely and rerunning this script restores them instead of silently
+# leaving the package broken; it is NOT a second source of truth, see
+# sync_hand_written_files().
+HAND_WRITTEN_FILES = [
+    "src/runtime.dart",
+    "src/tw_string.dart",
+    "src/tw_data.dart",
+    "src/interface/tw_string_interface.dart",
+    "src/interface/tw_data_interface.dart",
+    "src/wasm/tw_string_impl.dart",
+    "src/wasm/tw_data_impl.dart",
+    "src/wasm/runtime.dart",
+    "src/wasm/module.dart",
+]
+HAND_WRITTEN_BACKUP = Path(__file__).parent / "handwritten"
 
 DART_RESERVED = {
     "default", "class", "enum", "in", "is", "new", "this", "super", "with",
@@ -510,7 +532,73 @@ def generate_impl(cm: ClassModel) -> str:
     return "\n".join(lines) + "\n"
 
 
+def sync_hand_written_files():
+    """For each HAND_WRITTEN_FILES entry: if it exists under lib/, refresh
+    its tool/handwritten/ backup from it (so a hand-edit is never lost to a
+    stale backup); if it's missing (including the whole lib/ tree being
+    gone), restore it from the backup. Run this before anything else in
+    main() so the rest of the pipeline -- and any manual testing right
+    after -- can assume lib/src/{tw_string,tw_data,wasm/runtime,wasm/module}
+    etc. exist."""
+    for rel in HAND_WRITTEN_FILES:
+        target = ROOT / "lib" / rel
+        backup = HAND_WRITTEN_BACKUP / rel
+        if target.exists():
+            backup.parent.mkdir(parents=True, exist_ok=True)
+            backup.write_text(target.read_text())
+        elif backup.exists():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(backup.read_text())
+            print(f"Restored {target.relative_to(ROOT)} from tool/handwritten/ backup (was missing)")
+        else:
+            raise RuntimeError(
+                f"{target} is missing and no backup exists at {backup} -- "
+                "this hand-written file has no source of truth to regenerate from"
+            )
+
+
+TEMPLATES = Path(__file__).parent / "templates"
+
+
+def render_template(template_name: str, out_path: Path, **placeholders):
+    """Renders TEMPLATES/template_name (a hand-maintained skeleton holding
+    the fixed/hand-written parts of a generated file, with {{PLACEHOLDER}}
+    tokens marking the spots this script fills in) and writes the full
+    result to out_path -- always a complete rewrite, never a read-modify of
+    out_path itself, so out_path can be deleted entirely and this still
+    recreates it from scratch."""
+    text = (TEMPLATES / template_name).read_text()
+    for key, value in placeholders.items():
+        token = "{{" + key + "}}"
+        if token not in text:
+            raise RuntimeError(f"{template_name}: missing {token} placeholder")
+        text = text.replace(token, value)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(text)
+
+
+def stitch_generated_files(api_parts, wasm_parts, registry_entries):
+    """Fully regenerates lib/wallet_core_wasi_bindings.dart and
+    lib/src/wasm/registry.dart from tool/templates/*.tmpl + the freshly
+    computed part-directive/registry-entry lists, so a class/enum being
+    added or removed -- or either file being deleted outright -- needs no
+    manual follow-up."""
+    render_template(
+        "wallet_core_wasi_bindings.dart.tmpl",
+        MAIN_LIB,
+        API_PARTS="\n".join(f"part '{p}';" for p in sorted(api_parts)),
+        WASM_PARTS="\n".join(f"part '{p}';" for p in sorted(wasm_parts)),
+    )
+    render_template(
+        "registry.dart.tmpl",
+        REGISTRY,
+        REGISTRY_ENTRIES="\n".join(f"    {iface}: {impl}(wasm)," for iface, impl in sorted(registry_entries)),
+    )
+
+
 def main():
+    sync_hand_written_files()
+
     classes = load_classes()
     api_parts = []
     wasm_parts = []
@@ -553,6 +641,9 @@ def main():
     (Path(__file__).parent / "generated_registry_entries.txt").write_text(
         "\n".join(f"{iface}: {impl}(wasm)," for iface, impl in sorted(registry_entries))
     )
+
+    stitch_generated_files(api_parts, wasm_parts, registry_entries)
+    print(f"Stitched {MAIN_LIB.relative_to(ROOT)} and {REGISTRY.relative_to(ROOT)}.")
 
 
 if __name__ == "__main__":
